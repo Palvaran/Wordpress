@@ -1,0 +1,73 @@
+//Start: https://www.linode.com/docs/guides/how-to-install-a-lamp-stack-on-ubuntu-22-04/
+sudo apt update && sudo apt upgrade -y
+sudo apt install apache2 -y
+sudo apt install mysql-server -y
+sudo apt install php libapache2-mod-php php-mysql -y
+sudo apt install php-curl php-json php-cgi -y
+sudo apt install php-curl php-gd php-mbstring php-xml php-xmlrpc -y
+sudo ufw allow OpenSSH
+sudo ufw allow in "Apache Full"
+sudo ufw enable
+sudo ufw status
+sudo systemctl restart apache2
+sudo systemctl status apache2
+sudo reboot
+//sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/ideasquantified.com.conf
+//sudo nano /etc/apache2/sites-available/ideasquantified.com.conf
+//**Update ServerName, add ServerAlias, DocumentRoot is where website is located**
+//sudo mkdir /var/www/html/ideasquantified.com
+//sudo mkdir /var/www/html/ideasquantified.com/public_html
+//sudo mkdir -p /var/www/html/example.com/{public_html,logs}
+//sudo chown -R www-data:www-data /var/www/html/ideasquantified.com/public_html
+//sudo chmod -R 755 /var/www/html/ideasquantified.com/public_html
+//sudo a2ensite ideasquantified.com
+//sudo a2dissite 000-default.conf
+//sudo systemctl reload apache2
+//Change: https://www.linode.com/docs/guides/how-to-install-wordpress-ubuntu-22-04/
+sudo mysql -u root
+CREATE DATABASE wordpress;
+CREATE USER 'user'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'user'@'localhost';
+FLUSH PRIVILEGES;
+exit
+
+//Change: https://www.linode.com/docs/guides/how-to-install-a-lamp-stack-on-ubuntu-22-04/
+sudo mysql
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password by 'password';
+exit
+sudo mysql_secure_installation
+password, n, n, y, y, y, y
+
+//Change: https://www.linode.com/docs/guides/how-to-install-wordpress-ubuntu-22-04/
+sudo apt install php-curl php-gd php-mbstring php-xml php-xmlrpc php-soap -y
+sudo systemctl restart apache2
+sudo mkdir -p /var/www/html/ideasquantified.com/src
+cd /var/www/html/ideasquantified.com/src
+sudo wget http://wordpress.org/latest.tar.gz
+sudo tar -xvf latest.tar.gz
+sudo mv wordpress/* ../public_html/
+sudo chown -R www-data:www-data /var/www/html/ideasquantified.com
+
+//Change: https://www.linode.com/docs/guides/enabling-https-using-certbot-with-apache-on-ubuntu/
+sudo apt update
+sudo apt install ufw
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw enable
+sudo ufw status
+sudo apt remove certbot
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+sudo certbot --apache
+sudo certbot renew --dry-run
+sudo nano /etc/apache2/sites-enabled/000-default-le-ssl.conf
+//Update ServerName to ideasquantified.com
+//Update ServerAlias to www.ideasquantified.com
+//Update DocumentRoot to /var/www/html/ideasquantified.com/src/wordpress
+sudo nano /etc/apache2/apache2.conf
+//Update AllowOverride inside <Directory /var/www > from None to All
+sudo systemctl reload apache2
+sudo chmod -R 755 /var/www/html/ideasquantified.com/src/wordpress/
+
+//Update WordPress Address (URL) and Site Address (URL) from IP to Domain Name
